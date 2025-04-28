@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 
-export def recurse [task: string, new?: list<string>] {
+def recurse [task: string, new?: list<string>] {
     let len: int = $new | length
     if $len == 0 {
         return [ $task ]
