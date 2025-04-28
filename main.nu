@@ -1,7 +1,6 @@
 #!/usr/bin/env nu
 
 export def recurse [task: string, new?: list<string>] {
-    let new: list<string> = $new | default []
     let len: int = $new | length
     if $len == 0 {
         return [ $task ]
@@ -12,20 +11,28 @@ export def recurse [task: string, new?: list<string>] {
 
     if $len == 1 {
         if $task_first {
-            return [ $task, ($new | first)]
+            return [ $task, ($new | first) ]
         } else {
-            return [ ($new | first), $task]
+            return [ ($new | first), $task ]
         }
     } else {
         if $task_first {
             let slice = $new | range 0..($i - 1)
-            let rest = $new | range $i..$e
-            return [...$rest, ...(recurse $task $slice)]
+            let rest  = $new | range $i..$e
+            return [...(recurse $task $slice), ...$rest]
         } else {
             let slice = $new | range ($i + 1)..$e
-            let rest = $new | range 0..$i
-            return [...(recurse $task $slice), ...$rest]
+            let rest  = $new | range 0..$i
+            return [...$rest, ...(recurse $task $slice)]
         }
     }
 }
 
+def main [file: path] {
+    open $file
+    | reduce --fold [] {|it, acc|
+        recurse $it $acc
+    }
+    | save sorted_todos.json
+    print "Sorted todos are saved in sorted_todos.json."
+}
